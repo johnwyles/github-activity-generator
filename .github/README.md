@@ -12,10 +12,13 @@ for the last year.
 ## How to use
 1. Create an empty GitHub repository. Do not initialize it.
 2. Download [the contribute.py script](https://github.com/Shpota/github-activity-generator/archive/master.zip) 
-and execute it passing the link on the created repository
-```sh
-python contribute.py --repository=git@github.com:user/repo.git
-```
+3. Install the holidays package: `pip install holidays`
+4. **NOTE**: Before running this simple command check out the [!customizations]
+5. In the most simplest form you can execute it by passing the link on the
+   created repository:
+      ```sh
+      python contribute.py --repository=git@github.com:user/repo.git
+      ```
 Now you have a repository with lots of changes in your GitHub account.
 Note: it takes several minutes for GitHub to reindex your activity.
 
@@ -40,10 +43,25 @@ able to see what exactly.
 You can customize how often to commit and how many commits a day to make, etc.
 
 For instance, with the following command, the script will make from 1 to 12 
-commits a day. It will commit 60% days a year.
+commits a day starting from the current day. It will commit 60% days a year until
+interupted.
 ```sh
 python contribute.py --max_commits=12 --frequency=60 --repository=git@github.com:user/repo.git
 ```
+
+Use `--no_holidays` option if you don't want to commit on holidays
+```sh
+python contribute.py --no_holidays
+```
+However, if you use `--no_holidays` option, the script will default to country
+being the US. If you want to use a different country, you can specify it with
+the `--country` option. For example, to use the holidays in Germany, you would
+run the script like this:
+```sh
+python contribute.py --no_holidays --country=Germany
+```
+To see a list of supported countries please refer to the [holidays](https://pypi.org/project/holidays/) package.
+
 Use `--no_weekends` option if you don't want to commit on weekends
 ```sh
 python contribute.py --no_weekends
@@ -51,13 +69,6 @@ python contribute.py --no_weekends
 If you do not set the `--repository` argument the script won't push the changes. 
 This way you can import the generated repository yourself.
 
-Use `--days_before` and `--days_after` to specify how many days before the current
-date the script should start committing, and how many days after the current date it
-will keep committing.
-
-```sh
-python contribute.py --days_before=10 --days_after=15
-```
 Use `--start_date` to specify start date of commits. This option doesn't work if used with days_before.
 
 ```sh
