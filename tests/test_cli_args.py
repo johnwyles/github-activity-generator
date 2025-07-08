@@ -1,11 +1,15 @@
 """Tests for command line argument parsing."""
 
-from datetime import datetime, timedelta
-from typing import List
-
-import pytest
-
 from github_activity_generator.cli import create_parser
+from github_activity_generator.constants import (
+    MAX_FREQUENCY,
+)
+
+# Test-specific constants
+TEST_MAX_COMMITS = 15
+TEST_FREQUENCY = 90
+TEST_MIN_COMMITS = 5
+TEST_FREQ_FIFTY = 50
 
 
 class TestArgumentParsing:
@@ -15,7 +19,7 @@ class TestArgumentParsing:
         """Test parsing with no arguments uses defaults."""
         parser = create_parser()
         args = parser.parse_args([])
-        
+
         assert args.country_holidays is None
         assert args.no_holidays is False
         assert args.no_weekends is False
@@ -24,7 +28,7 @@ class TestArgumentParsing:
         assert args.repository is None
         assert args.user_name is None
         assert args.user_email is None
-        
+
         # Default dates are handled by Config class
         assert args.end_date is None
         assert args.start_date is None
@@ -33,20 +37,25 @@ class TestArgumentParsing:
         """Test parsing when all arguments are provided."""
         parser = create_parser()
         sample_args = [
-            "--start-date", "2024-01-01",
-            "--end-date", "2024-01-07",
-            "--max-commits", "5",
-            "--frequency", "100",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-07",
+            "--max-commits",
+            "5",
+            "--frequency",
+            "100",
             "--no-weekends",
             "--no-holidays",
-            "--country-holidays", "US"
+            "--country-holidays",
+            "US",
         ]
         args = parser.parse_args(sample_args)
-        
+
         assert args.start_date == "2024-01-01"
         assert args.end_date == "2024-01-07"
-        assert args.max_commits == 5
-        assert args.frequency == 100
+        assert args.max_commits == TEST_MIN_COMMITS
+        assert args.frequency == MAX_FREQUENCY
         assert args.no_weekends is True
         assert args.no_holidays is True
         assert args.country_holidays == "US"
@@ -58,7 +67,7 @@ class TestArgumentParsing:
             ("https://github.com/user/repo.git", "https://github.com/user/repo.git"),
             ("https://gitlab.com/user/repo.git", "https://gitlab.com/user/repo.git"),
         ]
-        
+
         parser = create_parser()
         for repo_url, expected in test_cases:
             args = parser.parse_args(["-r", repo_url])
@@ -67,11 +76,10 @@ class TestArgumentParsing:
     def test_user_config_arguments(self):
         """Test user name and email arguments."""
         parser = create_parser()
-        args = parser.parse_args([
-            "--user-name", "Test User",
-            "--user-email", "test@example.com"
-        ])
-        
+        args = parser.parse_args(
+            ["--user-name", "Test User", "--user-email", "test@example.com"]
+        )
+
         assert args.user_name == "Test User"
         assert args.user_email == "test@example.com"
 
@@ -98,19 +106,19 @@ class TestArgumentParsing:
             "2023-12-31",
             "2024-06-15",
         ]
-        
+
         parser = create_parser()
         for date_str in test_dates:
             args = parser.parse_args(["--start-date", date_str])
             assert args.start_date == date_str
-            
+
             args = parser.parse_args(["--end-date", date_str])
             assert args.end_date == date_str
 
     def test_country_holidays_argument(self):
         """Test country holidays argument."""
         countries = ["US", "UK", "CA", "AU", "DE", "FR"]
-        
+
         parser = create_parser()
         for country in countries:
             args = parser.parse_args(["--country-holidays", country])
@@ -122,38 +130,48 @@ class TestArgumentParsing:
         parser = create_parser()
         args = parser.parse_args(["--no-weekends"])
         assert args.no_weekends is True
-        
+
         args = parser.parse_args([])
         assert args.no_weekends is False
-        
+
         # Test no_holidays flag
         args = parser.parse_args(["--no-holidays"])
         assert args.no_holidays is True
-        
+
         args = parser.parse_args([])
         assert args.no_holidays is False
 
     def test_short_form_arguments(self):
         """Test short form of arguments."""
         parser = create_parser()
-        args = parser.parse_args([
-            "-ch", "UK",
-            "-nh",
-            "-nw",
-            "-mc", "15",
-            "-fr", "90",
-            "-r", "git@github.com:test/repo.git",
-            "-un", "Short User",
-            "-ue", "short@example.com",
-            "-sd", "2024-01-01",
-            "-ed", "2024-01-31"
-        ])
-        
+        args = parser.parse_args(
+            [
+                "-ch",
+                "UK",
+                "-nh",
+                "-nw",
+                "-mc",
+                "15",
+                "-fr",
+                "90",
+                "-r",
+                "git@github.com:test/repo.git",
+                "-un",
+                "Short User",
+                "-ue",
+                "short@example.com",
+                "-sd",
+                "2024-01-01",
+                "-ed",
+                "2024-01-31",
+            ]
+        )
+
         assert args.country_holidays == "UK"
         assert args.no_holidays is True
         assert args.no_weekends is True
-        assert args.max_commits == 15
-        assert args.frequency == 90
+        assert args.max_commits == TEST_MAX_COMMITS
+        assert args.frequency == TEST_FREQUENCY
         assert args.repository == "git@github.com:test/repo.git"
         assert args.user_name == "Short User"
         assert args.user_email == "short@example.com"
@@ -167,13 +185,18 @@ class TestArgumentParsing:
         args = parser.parse_args(["--no-weekends", "--no-holidays"])
         assert args.no_weekends is True
         assert args.no_holidays is True
-        
+
         # Test custom dates with frequency
-        args = parser.parse_args([
-            "--start-date", "2024-01-01",
-            "--end-date", "2024-01-31",
-            "--frequency", "50"
-        ])
+        args = parser.parse_args(
+            [
+                "--start-date",
+                "2024-01-01",
+                "--end-date",
+                "2024-01-31",
+                "--frequency",
+                "50",
+            ]
+        )
         assert args.start_date == "2024-01-01"
         assert args.end_date == "2024-01-31"
-        assert args.frequency == 50
+        assert args.frequency == TEST_FREQ_FIFTY

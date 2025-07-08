@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run all code quality checks for GitHub Activity Generator."""
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -28,7 +29,7 @@ def run_command(cmd: List[str], description: str) -> Tuple[bool, str]:
     print(f"\n{BLUE}▶ {description}{RESET}")
     
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603
             cmd,
             capture_output=True,
             text=True,
@@ -55,7 +56,6 @@ def main():
     project_root = script_dir.parent
     
     # Change to project root
-    import os
     os.chdir(project_root)
     
     # Track overall success
@@ -107,11 +107,11 @@ def main():
     if all_passed:
         print(f"{GREEN}{BOLD}✓ All required checks passed!{RESET}")
         return 0
-    else:
-        print(f"{RED}{BOLD}✗ Some checks failed!{RESET}")
-        print(f"\n{YELLOW}Fix the issues and run again:{RESET}")
-        print(f"  python {__file__}")
-        return 1
+    
+    print(f"{RED}{BOLD}✗ Some checks failed!{RESET}")
+    print(f"\n{YELLOW}Fix the issues and run again:{RESET}")
+    print(f"  python {__file__}")
+    return 1
 
 
 if __name__ == "__main__":

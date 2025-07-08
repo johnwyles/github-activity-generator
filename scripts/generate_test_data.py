@@ -3,17 +3,22 @@
 
 import json
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List
 
 import yaml
 
+# Import constants for magic values
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+from github_activity_generator.constants import MIN_CONTRIBUTION_DAYS
+
 
 def generate_date_ranges() -> List[Dict[str, str]]:
     """Generate various test date ranges."""
     ranges = []
-    today = datetime.now()
+    today = datetime.now(timezone.utc)
     
     # Standard ranges
     ranges.extend([
@@ -329,10 +334,10 @@ def save_test_data(output_dir: Path) -> None:
     
     # Generate sample commits data
     sample_commits = []
-    base_date = datetime(2024, 1, 1)
+    base_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
     for day in range(30):
         date = base_date + timedelta(days=day)
-        if date.weekday() < 5:  # Weekday
+        if date.weekday() < MIN_CONTRIBUTION_DAYS:  # Weekday
             num_commits = random.randint(1, 10)
             for i in range(num_commits):
                 commit_time = date + timedelta(minutes=i)

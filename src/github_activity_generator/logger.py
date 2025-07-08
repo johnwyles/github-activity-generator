@@ -1,15 +1,14 @@
 """Logging configuration for GitHub Activity Generator."""
 
+import contextlib
 import logging
-import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
-
 
 # Global console instance
 console = Console(stderr=True)
@@ -22,7 +21,7 @@ def setup_logging(
     use_rich: bool = True,
 ) -> None:
     """Set up logging configuration.
-    
+
     Args:
         level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional log file path
@@ -31,19 +30,19 @@ def setup_logging(
     """
     # Convert string level to logging constant
     numeric_level = getattr(logging, level.upper(), logging.INFO)
-    
+
     # If verbose, use DEBUG level
     if verbose:
         numeric_level = logging.DEBUG
-    
+
     # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(numeric_level)
-    
+
     # Remove existing handlers
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
-    
+
     # Console handler
     if use_rich and sys.stderr.isatty():
         console_handler = RichHandler(
@@ -54,7 +53,7 @@ def setup_logging(
             tracebacks_show_locals=verbose,
         )
         console_handler.setLevel(numeric_level)
-        
+
         # Use simpler format for rich handler
         console_formatter = logging.Formatter("%(message)s")
         console_handler.setFormatter(console_formatter)
@@ -62,27 +61,27 @@ def setup_logging(
         # Fallback to standard console handler
         console_handler = logging.StreamHandler(sys.stderr)
         console_handler.setLevel(numeric_level)
-        
+
         # Standard format
         console_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         if not verbose:
             console_format = "%(levelname)s: %(message)s"
-        
+
         console_formatter = logging.Formatter(console_format)
         console_handler.setFormatter(console_formatter)
-    
+
     root_logger.addHandler(console_handler)
-    
+
     # File handler
     if log_file:
         try:
             # Create log directory if needed
             log_path = Path(log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             file_handler = logging.FileHandler(log_file, encoding="utf-8")
             file_handler.setLevel(logging.DEBUG)  # Always log everything to file
-            
+
             # Detailed format for file
             file_format = (
                 "%(asctime)s - %(name)s - %(levelname)s - "
@@ -90,22 +89,24 @@ def setup_logging(
             )
             file_formatter = logging.Formatter(file_format)
             file_handler.setFormatter(file_formatter)
-            
+
             root_logger.addHandler(file_handler)
         except Exception as e:
             console.print(f"[yellow]Warning: Could not create log file: {e}[/yellow]")
-    
+
     # Log the configuration
     logger = logging.getLogger(__name__)
-    logger.debug(f"Logging configured: level={level}, verbose={verbose}, log_file={log_file}")
+    logger.debug(
+        f"Logging configured: level={level}, verbose={verbose}, log_file={log_file}"
+    )
 
 
 def get_logger(name: str) -> logging.Logger:
     """Get a logger instance for the given name.
-    
+
     Args:
         name: Logger name (usually __name__)
-        
+
     Returns:
         Logger instance
     """
@@ -114,7 +115,7 @@ def get_logger(name: str) -> logging.Logger:
 
 def log_section(logger: logging.Logger, title: str, width: int = 60) -> None:
     """Log a section header.
-    
+
     Args:
         logger: Logger to use
         title: Section title
@@ -128,7 +129,7 @@ def log_section(logger: logging.Logger, title: str, width: int = 60) -> None:
 
 def log_subsection(logger: logging.Logger, title: str, width: int = 60) -> None:
     """Log a subsection header.
-    
+
     Args:
         logger: Logger to use
         title: Subsection title
@@ -140,9 +141,11 @@ def log_subsection(logger: logging.Logger, title: str, width: int = 60) -> None:
     logger.info(separator)
 
 
-def log_key_value(logger: logging.Logger, key: str, value: any, indent: int = 2) -> None:
+def log_key_value(
+    logger: logging.Logger, key: str, value: Any, indent: int = 2
+) -> None:
     """Log a key-value pair.
-    
+
     Args:
         logger: Logger to use
         key: Key name
@@ -160,7 +163,7 @@ def log_error_with_context(
     context: Optional[dict] = None,
 ) -> None:
     """Log an error with additional context.
-    
+
     Args:
         logger: Logger to use
         message: Error message
@@ -168,54 +171,52 @@ def log_error_with_context(
         context: Optional context dictionary
     """
     logger.error(f"{message}: {type(error).__name__}: {error}")
-    
+
     if context:
         logger.error("Context:")
         for key, value in context.items():
             logger.error(f"  {key}: {value}")
-    
+
     # Log stack trace at debug level
     logger.debug("Stack trace:", exc_info=error)
 
 
 def get_log_file_path(name: str = "github-activity-generator") -> str:
     """Get default log file path.
-    
+
     Args:
         name: Base name for log file
-        
+
     Returns:
         Log file path
     """
     # Use user's home directory for logs
     log_dir = Path.home() / ".local" / "share" / "github-activity-generator" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Create timestamped log file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     log_file = log_dir / f"{name}_{timestamp}.log"
-    
+
     return str(log_file)
 
 
 def cleanup_old_logs(log_dir: Path, keep_days: int = 7) -> None:
     """Clean up old log files.
-    
+
     Args:
         log_dir: Directory containing log files
         keep_days: Number of days to keep logs
     """
     if not log_dir.exists():
         return
-    
-    cutoff_time = datetime.now().timestamp() - (keep_days * 24 * 60 * 60)
-    
+
+    cutoff_time = datetime.now(timezone.utc).timestamp() - (keep_days * 24 * 60 * 60)
+
     for log_file in log_dir.glob("*.log"):
         if log_file.stat().st_mtime < cutoff_time:
-            try:
-                log_file.unlink()
-            except Exception:
-                pass  # Ignore errors when cleaning up
+            with contextlib.suppress(Exception):
+                log_file.unlink()  # Ignore errors when cleaning up
 
 
 # Convenience functions for module-level logging

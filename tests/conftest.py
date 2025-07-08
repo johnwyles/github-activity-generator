@@ -3,7 +3,7 @@
 import os
 import shutil
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Generator, List, Tuple
 from unittest.mock import MagicMock, patch
@@ -46,7 +46,7 @@ def mock_git_commands() -> Generator[MagicMock, None, None]:
 @pytest.fixture
 def sample_date_range() -> Tuple[datetime, datetime]:
     """Provide a sample date range for testing."""
-    end_date = datetime.now()
+    end_date = datetime.now(timezone.utc)
     start_date = end_date - timedelta(days=7)
     return start_date, end_date
 
@@ -55,13 +55,18 @@ def sample_date_range() -> Tuple[datetime, datetime]:
 def sample_args() -> List[str]:
     """Provide sample command line arguments."""
     return [
-        "--start_date", "2024-01-01",
-        "--end_date", "2024-01-07",
-        "--max_commits", "5",
-        "--frequency", "100",
+        "--start_date",
+        "2024-01-01",
+        "--end_date",
+        "2024-01-07",
+        "--max_commits",
+        "5",
+        "--frequency",
+        "100",
         "--no_weekends",
         "--no_holidays",
-        "--country_holidays", "US"
+        "--country_holidays",
+        "US",
     ]
 
 
@@ -70,7 +75,9 @@ def mock_holidays() -> Generator[MagicMock, None, None]:
     """Mock the holidays module."""
     with patch("contribute.holidays") as mock_holidays_module:
         mock_us_holidays = MagicMock()
-        mock_us_holidays.__contains__ = lambda self, date: date.day == 1  # Jan 1 is a holiday
+        mock_us_holidays.__contains__ = (
+            lambda _self, date: date.day == 1
+        )  # Jan 1 is a holiday
         mock_holidays_module.__dict__ = {"US": lambda: mock_us_holidays}
         yield mock_holidays_module
 
@@ -87,26 +94,26 @@ def git_config() -> Generator[None, None, None]:
     # Save current git config
     original_name = os.environ.get("GIT_AUTHOR_NAME")
     original_email = os.environ.get("GIT_AUTHOR_EMAIL")
-    
+
     # Set test git config
     os.environ["GIT_AUTHOR_NAME"] = "Test User"
     os.environ["GIT_AUTHOR_EMAIL"] = "test@example.com"
     os.environ["GIT_COMMITTER_NAME"] = "Test User"
     os.environ["GIT_COMMITTER_EMAIL"] = "test@example.com"
-    
+
     yield
-    
+
     # Restore original config
     if original_name:
         os.environ["GIT_AUTHOR_NAME"] = original_name
     else:
         os.environ.pop("GIT_AUTHOR_NAME", None)
-        
+
     if original_email:
         os.environ["GIT_AUTHOR_EMAIL"] = original_email
     else:
         os.environ.pop("GIT_AUTHOR_EMAIL", None)
-        
+
     os.environ.pop("GIT_COMMITTER_NAME", None)
     os.environ.pop("GIT_COMMITTER_EMAIL", None)
 

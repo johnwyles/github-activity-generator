@@ -18,6 +18,28 @@ MIN_FREQUENCY = 0
 MAX_FREQUENCY = 100
 DEFAULT_FREQUENCY = 80
 
+# Time constants (in seconds)
+SECONDS_PER_MINUTE = 60
+SECONDS_PER_HOUR = 3600
+
+# Date/Time constants
+DAYS_IN_WEEK = 7
+DAYS_IN_MONTH = 30
+DAYS_IN_YEAR = 365
+
+# File/Data constants
+MIN_FILE_PARTS = 2
+MIN_URL_PARTS = 3
+HASH_LENGTH = 32
+KILOBYTE = 1024
+
+# Git constants
+GIT_ERROR_CODE = 128
+
+# Display constants
+MIN_DISPLAY_ITEMS = 3
+MIN_CONTRIBUTION_DAYS = 5
+
 # Date formats
 DATE_FORMAT = "%Y-%m-%d"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -64,16 +86,17 @@ EXIT_VALIDATION_ERROR = 3
 EXIT_CONFIGURATION_ERROR = 4
 EXIT_GIT_ERROR = 5
 
+
 # Colors for terminal output (ANSI codes)
 class Colors:
     """Terminal color codes."""
-    
+
     RESET = "\033[0m"
     BOLD = "\033[1m"
     DIM = "\033[2m"
     ITALIC = "\033[3m"
     UNDERLINE = "\033[4m"
-    
+
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -82,7 +105,7 @@ class Colors:
     MAGENTA = "\033[35m"
     CYAN = "\033[36m"
     WHITE = "\033[37m"
-    
+
     BG_BLACK = "\033[40m"
     BG_RED = "\033[41m"
     BG_GREEN = "\033[42m"
@@ -91,7 +114,7 @@ class Colors:
     BG_MAGENTA = "\033[45m"
     BG_CYAN = "\033[46m"
     BG_WHITE = "\033[47m"
-    
+
     # Bright colors
     BRIGHT_BLACK = "\033[90m"
     BRIGHT_RED = "\033[91m"
@@ -106,11 +129,11 @@ class Colors:
 # Emoji constants
 class Emoji:
     """Unicode emoji for output."""
-    
+
     SUCCESS = "✅"
     ERROR = "❌"
     WARNING = "⚠️"
-    INFO = "ℹ️"
+    INFO = "ℹ️"  # noqa: RUF001
     ROCKET = "🚀"
     CALENDAR = "📅"
     CLOCK = "🕐"
@@ -180,11 +203,17 @@ WARNING_EXISTING_DIRECTORY = "Using existing directory"
 WARNING_NO_COMMITS_GENERATED = "No commits were generated"
 
 # Help text snippets
-HELP_DATE_FORMAT = "Date format: YYYY-MM-DD or special values like 'today', '30_days_ago'"
+HELP_DATE_FORMAT = (
+    "Date format: YYYY-MM-DD or special values like 'today', '30_days_ago'"
+)
 HELP_REPOSITORY_FORMAT = "Repository URL format: git@github.com:user/repo.git or https://github.com/user/repo.git"
-HELP_COUNTRY_LIST = "For supported countries, see: https://python-holidays.readthedocs.io"
+HELP_COUNTRY_LIST = (
+    "For supported countries, see: https://python-holidays.readthedocs.io"
+)
 
 # Paths
 DEFAULT_CONFIG_DIR = Path.home() / ".config" / "github-activity-generator"
 DEFAULT_CACHE_DIR = Path.home() / ".cache" / "github-activity-generator"
-DEFAULT_LOG_DIR = Path.home() / ".local" / "share" / "github-activity-generator" / "logs"
+DEFAULT_LOG_DIR = (
+    Path.home() / ".local" / "share" / "github-activity-generator" / "logs"
+)
