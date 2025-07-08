@@ -1,0 +1,112 @@
+# GitHub Activity Generator Configuration Example
+# Copy this file to config.yaml and customize for your needs
+
+# Date range for commit generation
+date_range:
+  # Start date for commits
+  # Format: YYYY-MM-DD or special values like "today", "365_days_ago"
+  start_date: "365_days_ago"
+  
+  # End date for commits  
+  # Format: YYYY-MM-DD or special values like "today", "yesterday"
+  end_date: "today"
+
+# Commit generation behavior
+commit_behavior:
+  # Maximum number of commits to create per day (1-20)
+  max_commits_per_day: 10
+  
+  # Percentage chance of creating commits on any given day (0-100)
+  # 80 means 80% of eligible days will have commits
+  frequency_percentage: 80
+  
+  # Skip weekends (Saturday and Sunday)
+  skip_weekends: false
+  
+  # Skip holidays based on country calendar
+  skip_holidays: false
+  
+  # Country code for holiday calendar
+  # Examples: US, UK, CA, AU, DE, FR, JP, CN
+  # Full list: https://python-holidays.readthedocs.io/en/latest/#available-countries
+  holiday_country: "US"
+
+# Git configuration settings
+git_settings:
+  # Git user name (overrides global git config)
+  # Set to null or omit to use global git config
+  user_name: null
+  
+  # Git user email (overrides global git config)
+  # Set to null or omit to use global git config
+  user_email: null
+  
+  # Remote repository URL (SSH or HTTPS format)
+  # Examples:
+  # - git@github.com:username/repo.git (SSH)
+  # - https://github.com/username/repo.git (HTTPS)
+  # Set to null or omit to create local repository only
+  repository_url: null
+
+# Output and display options
+output:
+  # Show progress bar during commit generation
+  show_progress: true
+  
+  # Enable verbose output for debugging
+  verbose: false
+  
+  # Dry run mode - preview changes without making commits
+  # Useful for testing your configuration
+  dry_run: false
+
+# Example configurations for different scenarios:
+
+# === Work Project Configuration ===
+# date_range:
+#   start_date: "90_days_ago"
+#   end_date: "today"
+# 
+# commit_behavior:
+#   max_commits_per_day: 8
+#   frequency_percentage: 95
+#   skip_weekends: true
+#   skip_holidays: true
+#   holiday_country: "US"
+# 
+# git_settings:
+#   user_name: "Your Work Name"
+#   user_email: "you@company.com"
+#   repository_url: "git@github.com:company/work-project.git"
+
+# === Personal Project Configuration ===
+# date_range:
+#   start_date: "2023-01-01"
+#   end_date: "2023-12-31"
+# 
+# commit_behavior:
+#   max_commits_per_day: 5
+#   frequency_percentage: 60
+#   skip_weekends: false
+#   skip_holidays: false
+# 
+# git_settings:
+#   user_name: "Your Name"
+#   user_email: "personal@email.com"
+#   repository_url: "git@github.com:yourusername/personal-project.git"
+
+# === Test Configuration ===
+# date_range:
+#   start_date: "7_days_ago"
+#   end_date: "today"
+# 
+# commit_behavior:
+#   max_commits_per_day: 20
+#   frequency_percentage: 100
+#   skip_weekends: false
+#   skip_holidays: false
+# 
+# output:
+#   show_progress: true
+#   verbose: true
+#   dry_run: true  # Always dry run for testing
