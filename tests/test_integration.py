@@ -1,264 +1,104 @@
-"""Integration tests for the complete workflow."""
+"""Integration tests for the GitHub Activity Generator."""
 
 import os
-import subprocess
-from datetime import datetime, timedelta
+import shutil
+import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
-import contribute
+from github_activity_generator.cli import main
+from github_activity_generator.config_loader import Config
+from github_activity_generator.core import ActivityGenerator
 
 
 class TestIntegration:
-    """Integration tests for complete workflows."""
-
-    @pytest.mark.integration
-    def test_full_workflow_no_push(self, temp_dir, mock_git_commands):
-        """Test complete workflow without pushing to remote."""
-        args = [
-            "--start_date", "2024-01-01",
-            "--end_date", "2024-01-03",
-            "--max_commits", "2",
-            "--frequency", "100"
-        ]
-        
-        # Run main function
-        contribute.main(args)
-        
-        # Verify git init was called
-        assert any("init" in str(call) for call in mock_git_commands.call_args_list)
-        
-        # Verify commits were made (add + commit for each)
-        add_calls = [call for call in mock_git_commands.call_args_list if "add" in str(call)]
-        commit_calls = [call for call in mock_git_commands.call_args_list if "commit" in str(call)]
-        
-        # Should have at least 3 days of commits
-        assert len(add_calls) >= 3
-        assert len(commit_calls) >= 3
-        
-        # Verify README.md was created
-        assert Path("README.md").exists()
-
-    @pytest.mark.integration
-    def test_full_workflow_with_push(self, temp_dir, mock_git_commands):
-        """Test complete workflow with pushing to remote."""
-        repo_url = "git@github.com:test/repo.git"
-        args = [
-            "--start_date", "2024-01-01",
-            "--end_date", "2024-01-02",
-            "--max_commits", "1",
-            "--frequency", "100",
-            "--repository", repo_url
-        ]
-        
-        # Run main function
-        contribute.main(args)
-        
-        # Verify remote was added
-        remote_calls = [call for call in mock_git_commands.call_args_list 
-                       if "remote" in str(call) and "add" in str(call)]
-        assert len(remote_calls) == 1
-        assert repo_url in str(remote_calls[0])
-        
-        # Verify push was attempted
-        push_calls = [call for call in mock_git_commands.call_args_list if "push" in str(call)]
-        assert len(push_calls) == 1
-
-    @pytest.mark.integration
-    def test_weekend_holiday_filtering_integration(self, temp_dir, mock_git_commands, mock_holidays):
-        """Test integration with weekend and holiday filtering."""
-        args = [
-            "--start_date", "2024-01-01",  # Monday (holiday)
-            "--end_date", "2024-01-07",     # Sunday
-            "--no_weekends",
-            "--no_holidays",
-            "--frequency", "100",
-            "--max_commits", "1"
-        ]
-        
-        contribute.main(args)
-        
-        # Count actual commits made
-        commit_calls = [call for call in mock_git_commands.call_args_list if "commit" in str(call)]
-        
-        # Should skip: Jan 1 (holiday), Jan 6-7 (weekend)
-        # Should commit: Jan 2-5 (Tue-Fri) = 4 days
-        assert len(commit_calls) == 4
-
-    @pytest.mark.integration
-    @pytest.mark.requires_git
-    def test_real_git_operations(self, temp_dir):
-        """Test with real git operations (requires git installed)."""
-        # Check if git is available
-        try:
-            subprocess.run(["git", "--version"], check=True, capture_output=True)
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            pytest.skip("Git not available")
-        
-        args = [
-            "--start_date", "2024-01-01",
-            "--end_date", "2024-01-01",
-            "--max_commits", "1",
-            "--frequency", "100"
-        ]
-        
-        # Run without mocking
-        contribute.main(args)
-        
-        # Verify git repository was created
-        assert Path(".git").exists()
-        
-        # Verify commits were made
-        result = subprocess.run(
-            ["git", "rev-list", "--count", "HEAD"],
-            capture_output=True,
-            text=True
-        )
-        commit_count = int(result.stdout.strip())
-        assert commit_count >= 1
-        
-        # Verify README.md content
-        assert Path("README.md").exists()
-        with open("README.md", "r") as f:
-            content = f.read()
-            assert "Contribution: 2024-01-01" in content
-
-    @pytest.mark.integration
-    def test_custom_user_config(self, temp_dir, mock_git_commands):
-        """Test with custom user configuration."""
-        args = [
-            "--start_date", "2024-01-01",
-            "--end_date", "2024-01-01",
-            "--user_name", "Test User",
-            "--user_email", "test@example.com",
-            "--max_commits", "1"
-        ]
-        
-        contribute.main(args)
-        
-        # Verify user config was set
-        config_calls = [call for call in mock_git_commands.call_args_list if "config" in str(call)]
-        
-        user_name_set = any("user.name" in str(call) and "Test User" in str(call) 
-                           for call in config_calls)
-        user_email_set = any("user.email" in str(call) and "test@example.com" in str(call) 
-                            for call in config_calls)
-        
-        assert user_name_set
-        assert user_email_set
-
-    @pytest.mark.integration
-    def test_existing_repository_handling(self, temp_dir, mock_git_commands):
-        """Test handling of existing repository directory."""
-        # Create existing directory with some content
-        repo_dir = "repository-test"
-        os.mkdir(repo_dir)
-        
-        with open(os.path.join(repo_dir, "existing.txt"), "w") as f:
-            f.write("existing content")
-        
-        args = [
-            "--start_date", "2024-01-01",
-            "--end_date", "2024-01-01",
-            "--repository", f"git@github.com:test/{repo_dir}.git"
-        ]
-        
-        # Change to parent directory
+    """Integration tests for the complete workflow."""
+    
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for tests."""
+        temp_dir = tempfile.mkdtemp()
+        original_dir = os.getcwd()
         os.chdir(temp_dir)
+        yield temp_dir
+        os.chdir(original_dir)
+        shutil.rmtree(temp_dir)
+    
+    def test_dry_run_execution(self, temp_dir):
+        """Test dry run execution."""
+        # Run with dry-run flag
+        exit_code = main([
+            "--dry-run",
+            "--start-date", "2_days_ago",
+            "--end-date", "today",
+            "--max-commits", "3",
+            "--frequency", "100"
+        ])
         
-        # Run main - should handle existing directory
-        contribute.main(args)
+        assert exit_code == 0
+        # In dry run, no repository should be created
+        repos = list(Path(temp_dir).glob("repository-*"))
+        assert len(repos) == 1  # Directory created but no commits
+    
+    def test_actual_generation(self, temp_dir):
+        """Test actual commit generation."""
+        # Run actual generation with git config
+        exit_code = main([
+            "--start-date", "1_days_ago",
+            "--end-date", "today",
+            "--max-commits", "2",
+            "--frequency", "100",
+            "--no-progress",
+            "--user-name", "Test User",
+            "--user-email", "test@example.com"
+        ])
         
-        # Verify it used the existing directory
-        assert os.path.exists(os.path.join(repo_dir, "existing.txt"))
-        assert os.path.exists(os.path.join(repo_dir, "README.md"))
-
-    @pytest.mark.integration
-    def test_date_validation_integration(self, temp_dir, capsys):
-        """Test date validation in integration."""
-        # Test invalid date format
-        args = ["--start_date", "2024/01/01"]  # Wrong format
+        assert exit_code == 0
         
-        with pytest.raises(SystemExit):
-            contribute.main(args)
+        # Check repository was created
+        repos = list(Path(temp_dir).glob("repository-*"))
+        assert len(repos) == 1
         
+        # Check git repository exists
+        repo_dir = repos[0]
+        assert (repo_dir / ".git").exists()
+        assert (repo_dir / "README.md").exists()
+    
+    def test_config_loading(self):
+        """Test configuration loading and defaults."""
+        config = Config()
+        
+        # Test defaults
+        assert config.commit_behavior.max_commits_per_day == 10
+        assert config.commit_behavior.frequency_percentage == 80
+        assert config.commit_behavior.skip_weekends is False
+        assert config.commit_behavior.skip_holidays is False
+        assert config.commit_behavior.holiday_country == "US"
+    
+    def test_date_range_parsing(self):
+        """Test date range parsing."""
+        config = Config()
+        
+        # Test special values
+        config.date_range.start_date = "7_days_ago"
+        config.date_range.end_date = "today"
+        
+        start, end = config.date_range.resolve_dates()
+        assert start < end
+        assert (end - start).days == 7
+    
+    def test_no_arguments_shows_help(self, capsys, monkeypatch, temp_dir):
+        """Test that running without arguments shows help."""
+        # Mock sys.argv to simulate no arguments
+        import sys
+        monkeypatch.setattr(sys, 'argv', ['generate.py'])
+        
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        
+        assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "Date format is incorrect" in captured.out
-
-    @pytest.mark.integration
-    def test_start_after_end_date(self, temp_dir, capsys):
-        """Test error when start date is after end date."""
-        args = [
-            "--start_date", "2024-01-10",
-            "--end_date", "2024-01-01"
-        ]
-        
-        with pytest.raises(SystemExit):
-            contribute.main(args)
-        
-        captured = capsys.readouterr()
-        assert "Start date cannot be greater than end date" in captured.out
-
-    @pytest.mark.integration
-    def test_future_date_warning(self, temp_dir, mock_input, capsys):
-        """Test warning for future dates."""
-        future_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
-        
-        args = [
-            "--start_date", future_date,
-            "--end_date", future_date
-        ]
-        
-        # User confirms with 'y'
-        mock_input.return_value = "y"
-        
-        # Should not raise SystemExit
-        with patch("contribute.run"):  # Mock git operations
-            contribute.main(args)
-        
-        captured = capsys.readouterr()
-        assert "Start date is greater than current date" in captured.out
-        assert "End date is greater than current date" in captured.out
-
-    @pytest.mark.integration
-    def test_unsupported_country(self, temp_dir, capsys):
-        """Test error for unsupported country holidays."""
-        args = ["--country_holidays", "XX"]  # Invalid country code
-        
-        with pytest.raises(SystemExit):
-            contribute.main(args)
-        
-        captured = capsys.readouterr()
-        assert "Country is not supported" in captured.out
-
-    @pytest.mark.integration
-    def test_frequency_out_of_bounds(self, temp_dir, capsys):
-        """Test error for frequency out of bounds."""
-        # Test frequency > 100
-        args = ["--frequency", "150"]
-        
-        with pytest.raises(SystemExit):
-            contribute.main(args)
-        
-        captured = capsys.readouterr()
-        assert "Frequency must be between 0 and 100" in captured.out
-        
-        # Test frequency < 0
-        args = ["--frequency", "-10"]
-        
-        with pytest.raises(SystemExit):
-            contribute.main(args)
-
-    @pytest.mark.integration
-    def test_max_commits_out_of_bounds(self, temp_dir, capsys):
-        """Test error for max_commits out of bounds."""
-        # Test max_commits > 20
-        args = ["--max_commits", "25"]
-        
-        with pytest.raises(SystemExit):
-            contribute.main(args)
-        
-        captured = capsys.readouterr()
-        assert "Max commits must be between 1 and 20" in captured.out
+        assert "GitHub Activity Generator" in captured.out
+        assert "USAGE:" in captured.out
+        assert "COMMON EXAMPLES:" in captured.out

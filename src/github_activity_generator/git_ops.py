@@ -133,7 +133,8 @@ class GitOperations:
             self._run_git_command([
                 "commit",
                 "-m", message,
-                "--date", date.strftime('"%Y-%m-%d %H:%M:%S"')
+                "--date", date.strftime('%Y-%m-%d %H:%M:%S'),
+                "--no-gpg-sign"
             ])
             
             if self.verbose:
