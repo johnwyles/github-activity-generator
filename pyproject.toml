@@ -49,7 +49,6 @@ dev = [
 
 [project.scripts]
 github-activity-generator = "github_activity_generator.cli:main"
-github-activity = "github_activity_generator.cli:main"  # Backward compatibility
 
 [project.urls]
 "Homepage" = "https://github.com/yourusername/github-activity-generator"

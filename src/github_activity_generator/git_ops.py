@@ -292,21 +292,3 @@ class GitOperations:
             )
 
 
-def run_git_command(commands: List[str], verbose: bool = False) -> None:
-    """Run git command (compatibility function).
-    
-    Args:
-        commands: Command list starting with 'git'
-        verbose: Whether to show verbose output
-    """
-    if commands[0] == "git":
-        commands = commands[1:]
-    
-    if verbose:
-        print(f"{Colors.WHITE}Running: git {' '.join(commands)}{Colors.RESET}")
-    
-    try:
-        subprocess.run(["git"] + commands, check=True)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Git command failed: {e}")
-        raise

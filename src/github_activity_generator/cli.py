@@ -28,23 +28,48 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Generate activity for the past year with default settings
-  %(prog)s
+  # Preview what would be generated (always start with dry-run!)
+  %(prog)s --dry-run --start-date 30_days_ago
   
-  # Generate activity for a specific date range
-  %(prog)s --start-date 2023-01-01 --end-date 2023-12-31
+  # Generate realistic work activity (weekdays only, respecting holidays)
+  %(prog)s --no-weekends --no-holidays --country-holidays US \\
+           --start-date 2024-01-01 --end-date 2024-12-31 \\
+           --frequency 85 --max-commits 12
   
-  # Generate with custom frequency and skip weekends
-  %(prog)s --frequency 60 --no-weekends
+  # Simulate different contributor patterns
+  %(prog)s --frequency 100 --max-commits 5   # Consistent daily contributor
+  %(prog)s --frequency 40 --max-commits 20   # Burst contributor
+  %(prog)s --frequency 80 --max-commits 1    # Minimal daily activity
   
-  # Push to a remote repository
-  %(prog)s --repository git@github.com:user/repo.git
+  # Auto-push to GitHub repository
+  %(prog)s --repository git@github.com:username/project.git \\
+           --user-name "Your Name" --user-email "you@example.com" \\
+           --start-date 180_days_ago --no-weekends
   
-  # Dry run to see what would be generated
-  %(prog)s --dry-run
+  # Different time periods
+  %(prog)s --start-date yesterday --end-date today           # Just today
+  %(prog)s --start-date 7_days_ago                          # Last week
+  %(prog)s --start-date 2024-01-01 --end-date 2024-03-31   # Q1 2024
+  %(prog)s --start-date 2023-01-01 --end-date 2023-12-31   # Full year
   
-  # Use a configuration file
-  %(prog)s --config config.yaml
+  # Configuration file for complex patterns
+  cat > github-work.yaml << 'EOF'
+  date_range:
+    start_date: "2024-01-01"
+    end_date: "2024-12-31"
+  commit_behavior:
+    max_commits_per_day: 15
+    frequency_percentage: 90
+    skip_weekends: true
+    skip_holidays: true
+    holiday_country: "US"
+  git_settings:
+    user_name: "Your Name"
+    user_email: "your.email@company.com"
+    repository_url: "git@github.com:company/project.git"
+  EOF
+  
+  %(prog)s --config github-work.yaml
 """
     )
     
@@ -201,6 +226,96 @@ def show_configuration(config: Config) -> None:
     print()
 
 
+def show_usage_and_exit() -> None:
+    """Show comprehensive usage information and exit."""
+    print(f"{Colors.BOLD}{Colors.CYAN}{APP_NAME} v{APP_VERSION}{Colors.RESET}")
+    print()
+    print("Generate realistic GitHub activity to populate your contribution graph.")
+    print("This tool creates Git commits with backdated timestamps.")
+    print()
+    print(f"{Colors.BOLD}USAGE:{Colors.RESET} generate.py [OPTIONS]")
+    print()
+    print(f"{Colors.BOLD}COMMON EXAMPLES:{Colors.RESET}")
+    print("  generate.py --dry-run                         # Preview without creating commits")
+    print("  generate.py --start-date 30_days_ago          # Generate last 30 days of activity")
+    print("  generate.py --start-date 2024-01-01 --end-date 2024-12-31  # Specific date range")
+    print("  generate.py --no-weekends --frequency 90      # Skip weekends, 90% commit frequency")
+    print("  generate.py --repository git@github.com:user/repo.git  # Auto-push to GitHub")
+    print()
+    print(f"{Colors.BOLD}KEY OPTIONS:{Colors.RESET}")
+    print()
+    print(f"{Colors.CYAN}Date Control:{Colors.RESET}")
+    print("  --start-date DATE     Start date for commits (default: 365_days_ago)")
+    print("                       Examples: 2024-01-01, today, yesterday, 30_days_ago")
+    print("  --end-date DATE      End date for commits (default: today)")
+    print("                       Examples: 2024-12-31, today, yesterday")
+    print()
+    print(f"{Colors.CYAN}Commit Patterns:{Colors.RESET}")
+    print("  --max-commits N      Max commits per day, 1-20 (default: 10)")
+    print("  --frequency N        Percentage of days with commits, 0-100 (default: 80)")
+    print("  --no-weekends        Skip Saturdays and Sundays")
+    print("  --no-holidays        Skip holidays (use with --country-holidays)")
+    print("  --country-holidays   Country code for holidays (US, UK, CA, etc.)")
+    print()
+    print(f"{Colors.CYAN}Git Configuration:{Colors.RESET}")
+    print("  --repository URL     Remote repository URL to push to")
+    print("                       Example: git@github.com:username/repo.git")
+    print("  --user-name NAME     Override Git user name")
+    print("  --user-email EMAIL   Override Git user email")
+    print()
+    print(f"{Colors.CYAN}Output Control:{Colors.RESET}")
+    print("  --dry-run           Preview what would be generated without creating commits")
+    print("  --verbose           Show detailed output during generation")
+    print("  --no-progress       Disable progress bar")
+    print()
+    print(f"{Colors.BOLD}MORE EXAMPLES:{Colors.RESET}")
+    print()
+    print("# Generate a realistic work pattern (weekdays only, with holidays):")
+    print("generate.py --no-weekends --no-holidays --country-holidays US \\")
+    print("            --start-date 2024-01-01 --end-date 2024-12-31 \\")
+    print("            --frequency 85 --max-commits 12")
+    print()
+    print("# Simulate an open source contributor (evenings and weekends):")
+    print("generate.py --start-date 90_days_ago --max-commits 8 \\")
+    print("            --user-name \"Jane Developer\" \\")
+    print("            --user-email \"jane@example.com\"")
+    print()
+    print("# Create activity for a private work repo with auto-push:")
+    print("generate.py --repository git@github.com:company/internal-tool.git \\")
+    print("            --no-weekends --frequency 95 --max-commits 20 \\")
+    print("            --start-date 2024-01-01 --end-date 2024-06-30")
+    print()
+    print("# Generate sparse activity for an archived project:")
+    print("generate.py --start-date 2023-01-01 --end-date 2023-03-31 \\")
+    print("            --frequency 30 --max-commits 3")
+    print()
+    print("# Test different patterns with dry-run:")
+    print("generate.py --dry-run --start-date 30_days_ago --frequency 50  # Sparse")
+    print("generate.py --dry-run --start-date 30_days_ago --frequency 100 # Daily")
+    print("generate.py --dry-run --no-weekends --no-holidays --country-holidays UK")
+    print()
+    print("# Use configuration file for complex setups:")
+    print("cat > work-pattern.yaml << EOF")
+    print("date_range:")
+    print("  start_date: \"2024-01-01\"")
+    print("  end_date: \"2024-12-31\"")
+    print("commit_behavior:")
+    print("  max_commits_per_day: 15")
+    print("  frequency_percentage: 90")
+    print("  skip_weekends: true")
+    print("  skip_holidays: true")
+    print("  holiday_country: \"US\"")
+    print("git_settings:")
+    print("  user_name: \"Your Name\"")
+    print("  user_email: \"your.email@company.com\"")
+    print("  repository_url: \"git@github.com:company/project.git\"")
+    print("EOF")
+    print("generate.py --config work-pattern.yaml")
+    print()
+    print(f"Run 'generate.py --help' for complete option list.")
+    sys.exit(0)
+
+
 def main(args: Optional[List[str]] = None) -> int:
     """Main entry point for CLI.
     
@@ -210,6 +325,10 @@ def main(args: Optional[List[str]] = None) -> int:
     Returns:
         Exit code
     """
+    # Check if no arguments provided (not counting the script name)
+    if args is None and len(sys.argv) == 1:
+        show_usage_and_exit()
+    
     # Parse arguments
     parser = create_parser()
     parsed_args = parser.parse_args(args)
