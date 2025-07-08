@@ -12,8 +12,8 @@ from .exceptions import (
 )
 
 __version__ = APP_VERSION
-__author__ = "Your Name"
-__email__ = "your.email@example.com"
+__author__ = "John Wyles"
+__email__ = "john@johnwyles.com"
 
 __all__ = [
     "APP_NAME",

@@ -3,16 +3,16 @@
 > 🤖 A tool to generate a full year of GitHub activity in seconds! Create realistic-looking contribution graphs for demo projects, testing, or just for fun.
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/gharghi/github-activity-generator/graphs/commit-activity)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/johnwyles/github-activity-generator/graphs/commit-activity)
 
-[![GitHub Stars](https://img.shields.io/github/stars/gharghi/github-activity-generator.svg?style=social&label=Star)](https://github.com/gharghi/github-activity-generator)
-[![GitHub Forks](https://img.shields.io/github/forks/gharghi/github-activity-generator.svg?style=social&label=Fork)](https://github.com/gharghi/github-activity-generator/fork)
-[![GitHub Issues](https://img.shields.io/github/issues/gharghi/github-activity-generator.svg)](https://github.com/gharghi/github-activity-generator/issues)
-[![GitHub last commit](https://img.shields.io/github/last-commit/gharghi/github-activity-generator.svg)](https://github.com/gharghi/github-activity-generator/commits/main)
-[![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/gharghi/github-activity-generator/blob/main/CONTRIBUTING.md)
+[![GitHub Stars](https://img.shields.io/github/stars/johnwyles/github-activity-generator.svg?style=social&label=Star)](https://github.com/johnwyles/github-activity-generator)
+[![GitHub Forks](https://img.shields.io/github/forks/johnwyles/github-activity-generator.svg?style=social&label=Fork)](https://github.com/johnwyles/github-activity-generator/fork)
+[![GitHub Issues](https://img.shields.io/github/issues/johnwyles/github-activity-generator.svg)](https://github.com/johnwyles/github-activity-generator/issues)
+[![GitHub last commit](https://img.shields.io/github/last-commit/johnwyles/github-activity-generator.svg)](https://github.com/johnwyles/github-activity-generator/commits/main)
+[![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/johnwyles/github-activity-generator/blob/main/CONTRIBUTING.md)
 
 ## ✨ What is this?
 
@@ -35,7 +35,7 @@ Ever wanted to populate your GitHub contribution graph? This tool creates a Git 
 
 ```bash
 # Clone this repo
-git clone https://github.com/yourusername/github-activity-generator.git
+git clone https://github.com/johnwyles/github-activity-generator.git
 cd github-activity-generator
 
 # Set up Python environment (recommended)

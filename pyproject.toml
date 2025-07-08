@@ -7,15 +7,15 @@ name = "github-activity-generator"
 version = "2.0.0"
 description = "Generate GitHub activity graphs by creating backdated commits"
 readme = "README.md"
-license = {text = "Apache-2.0"}
+license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "John Wyles", email = "john@johnwyles.com"}
 ]
 keywords = ["github", "activity", "generator", "commits", "contributions"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -51,9 +51,9 @@ dev = [
 github-activity-generator = "github_activity_generator.cli:main"
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/github-activity-generator"
-"Bug Reports" = "https://github.com/yourusername/github-activity-generator/issues"
-"Source" = "https://github.com/yourusername/github-activity-generator"
+"Homepage" = "https://github.com/johnwyles/github-activity-generator"
+"Bug Reports" = "https://github.com/johnwyles/github-activity-generator/issues"
+"Source" = "https://github.com/johnwyles/github-activity-generator"
 
 [tool.setuptools.packages.find]
 where = ["src"]

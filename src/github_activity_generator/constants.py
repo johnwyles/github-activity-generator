@@ -6,7 +6,7 @@ from pathlib import Path
 APP_NAME = "GitHub Activity Generator"
 APP_VERSION = "2.0.0"
 VERSION = APP_VERSION  # Backward compatibility
-GITHUB_URL = "https://github.com/yourusername/github-activity-generator"
+GITHUB_URL = "https://github.com/johnwyles/github-activity-generator"
 DOCS_URL = "https://github-activity-generator.readthedocs.io"
 
 # Limits
