@@ -11,6 +11,7 @@
 ## ✨ Features
 
 ### 🚀 Core Features
+
 - **Generate realistic GitHub activity** - Create authentic-looking contribution patterns
 - **Smart scheduling** - Skip weekends, holidays, or create custom patterns
 - **Timezone aware** - All commits properly timestamped with timezone support
@@ -19,6 +20,7 @@
 - **Progress tracking** - Beautiful progress bars and statistics
 
 ### 🎨 New in v2.0 (Complete Rewrite!)
+
 - **Zero linter errors** - Clean, maintainable code (0 ruff errors, was 178!)
 - **Modern Python** - Full type hints, Python 3.8+ only
 - **Professional structure** - Proper package layout with `src/` directory
@@ -64,7 +66,7 @@ generate.py --repository git@github.com:username/repo.git
 
 ### Command Line Options
 
-```
+```text
 generate.py [OPTIONS]
 
 Date Control:
@@ -94,22 +96,26 @@ Output Options:
 ### 🎨 Example Patterns
 
 #### The Consistent Contributor
+
 ```bash
 generate.py --frequency 100 --max-commits 5
 ```
 
 #### The Weekend Warrior
+
 ```bash
 generate.py --no-weekdays --max-commits 15
 ```
 
 #### The 9-to-5 Developer
+
 ```bash
 generate.py --no-weekends --no-holidays --country-holidays US \
             --frequency 95 --max-commits 12
 ```
 
 #### The Burst Contributor
+
 ```bash
 generate.py --frequency 40 --max-commits 20
 ```
@@ -138,15 +144,17 @@ git_settings:
 ```
 
 Then use it:
+
 ```bash
 generate.py --config work-pattern.yaml
 ```
 
 ## 🏗️ Architecture
 
-This is a complete rewrite with modern Python practices:
+This is a complete rewrite with some bells and whistles using modern Python
+practices:
 
-```
+```text
 github-activity-generator/
 ├── src/
 │   └── github_activity_generator/
@@ -160,7 +168,7 @@ github-activity-generator/
 │       └── validators.py        # Input validation
 ├── tests/                       # Comprehensive test suite
 ├── generate.py                  # Main entry point
-└── pyproject.toml              # Modern Python packaging
+└── pyproject.toml               # Modern Python packaging
 ```
 
 ## 🧪 Development
@@ -185,10 +193,13 @@ mypy src
 ## 🙏 Credits
 
 ### Original Inspiration
+
 This project is a complete rewrite inspired by the original [github-activity-generator](https://github.com/Shpota/github-activity-generator) by **Serhii Shpota**. Thank you for the brilliant idea!
 
 ### Complete Rewrite
+
 This modern v2.0 rewrite was done with extensive assistance from **[Claude Code](https://claude.ai/code)** by Anthropic. The AI assistant helped:
+
 - Restructure the entire codebase with modern Python practices
 - Fix all 178 linter errors to achieve 0 errors
 - Add comprehensive type hints and error handling
@@ -198,6 +209,7 @@ This modern v2.0 rewrite was done with extensive assistance from **[Claude Code]
 - And much more!
 
 ### Contributors
+
 - **John Wyles** - Current maintainer and v2.0 rewrite
 - **You?** - Contributions welcome!
 
@@ -208,15 +220,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## ⚠️ Disclaimer
 
 This tool generates Git commits with backdated timestamps. Use responsibly:
+
 - ✅ Great for testing and demos
 - ✅ Perfect for populating test repositories
 - ✅ Useful for visualization examples
-- ❌ Don't misrepresent your actual work history
-- ❌ Don't use for misleading employers or clients
 
 ---
 
-<p align="center">
-  Made with ❤️ and lots of ☕ by <a href="https://github.com/johnwyles">John Wyles</a><br>
-  Powered by 🤖 <a href="https://claude.ai/code">Claude Code</a>
-</p>
+  Made with ❤️ and lots of ☕ by [John Wyles](https://github.com/johnwyles)  
+  Powered by 🤖 [Claude Code](https://claude.ai/code)
