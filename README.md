@@ -212,6 +212,7 @@ This tool generates Git commits with backdated timestamps. Use responsibly:
 - ✅ Perfect for populating test repositories
 - ✅ Useful for visualization examples
 - ❌ Don't misrepresent your actual work history
+- ❌ Don't use for misleading employers or clients
 
 ---
 
