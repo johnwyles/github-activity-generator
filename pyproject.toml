@@ -31,6 +31,7 @@ dependencies = [
     "rich>=13.0",
     "PyYAML>=6.0",
     "holidays>=0.31",
+    "tqdm>=4.64.0",
 ]
 
 [project.optional-dependencies]
