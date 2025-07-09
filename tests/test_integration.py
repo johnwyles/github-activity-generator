@@ -39,10 +39,10 @@ class TestIntegration:
             try:
                 subprocess.run(
                     ["rmdir", "/s", "/q", temp_dir],
-                    shell=True,  # noqa: S602, S607
+                    shell=True,
                     check=False,
                 )
-            except Exception:  # noqa: S110
+            except Exception:
                 pass  # Ignore cleanup errors on Windows
         else:
             shutil.rmtree(temp_dir)
