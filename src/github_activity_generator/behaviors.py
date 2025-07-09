@@ -293,4 +293,4 @@ def get_behavior(
     }
 
     behavior_class = behaviors.get(behavior_type, ConsistentBehavior)
-    return behavior_class(max_commits, frequency)
+    return behavior_class(max_commits, frequency)  # type: ignore[abstract]

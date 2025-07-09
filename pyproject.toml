@@ -43,6 +43,7 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0",
     "types-PyYAML",
+    "types-tqdm",
     "hypothesis>=6.0",
 ]
 
