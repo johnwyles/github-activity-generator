@@ -29,10 +29,11 @@ class TestIntegration:
         os.chdir(temp_dir)
         yield temp_dir
         os.chdir(original_dir)
-        
+
         # Windows-specific handling for .git directories
         if platform.system() == "Windows":
             import subprocess
+
             try:
                 # Use Windows rmdir to force remove
                 subprocess.run(["rmdir", "/s", "/q", temp_dir], shell=True, check=False)

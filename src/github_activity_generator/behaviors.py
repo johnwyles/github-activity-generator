@@ -246,7 +246,9 @@ class IrregularBehavior(CommitBehavior):
         # Between projects
         return 0
 
-    def _generate_project_periods(self, start_date: datetime, end_date: datetime) -> None:
+    def _generate_project_periods(
+        self, start_date: datetime, end_date: datetime
+    ) -> None:
         """Generate project periods."""
         current = start_date
 
