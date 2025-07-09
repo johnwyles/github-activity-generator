@@ -38,7 +38,9 @@ class TestIntegration:
             # S110: Ignoring errors is intentional for test cleanup
             try:
                 subprocess.run(
-                    ["rmdir", "/s", "/q", temp_dir], shell=True, check=False  # noqa: S602, S607
+                    ["rmdir", "/s", "/q", temp_dir],
+                    shell=True,  # noqa: S602, S607
+                    check=False,
                 )
             except Exception:  # noqa: S110
                 pass  # Ignore cleanup errors on Windows
