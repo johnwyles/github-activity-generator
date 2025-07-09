@@ -94,7 +94,14 @@ class CommitBehaviorConfig:
         if self.skip_holidays:
             validate_country_code(self.holiday_country)
         # Validate behavior choice
-        valid_behaviors = ["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"]
+        valid_behaviors = [
+            "consistent",
+            "regular",
+            "intense",
+            "hobbyist",
+            "opensource",
+            "irregular",
+        ]
         if self.behavior not in valid_behaviors:
             error_msg = f"Invalid behavior: {self.behavior}. Must be one of: {', '.join(valid_behaviors)}"
             raise ConfigurationError(error_msg)

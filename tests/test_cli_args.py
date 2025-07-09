@@ -209,21 +209,19 @@ class TestArgumentParsing:
     def test_repo_dir_argument(self):
         """Test repository directory argument."""
         parser = create_parser()
-        
+
         # Test long form
         args = parser.parse_args(["--repo-dir", "/path/to/repo"])
         assert args.repo_dir == "/path/to/repo"
-        
+
         # Test short form
         args = parser.parse_args(["-rd", "~/my-activity"])
         assert args.repo_dir == "~/my-activity"
-        
+
         # Test with other arguments
-        args = parser.parse_args([
-            "--repo-dir", "/custom/path",
-            "--max-commits", "5",
-            "--frequency", "80"
-        ])
+        args = parser.parse_args(
+            ["--repo-dir", "/custom/path", "--max-commits", "5", "--frequency", "80"]
+        )
         assert args.repo_dir == "/custom/path"
         assert args.max_commits == TEST_MIN_COMMITS
         assert args.frequency == 80
@@ -231,27 +229,32 @@ class TestArgumentParsing:
     def test_behavior_argument(self):
         """Test behavior argument parsing."""
         parser = create_parser()
-        
+
         # Test long form with each behavior
-        behaviors = ["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"]
+        behaviors = [
+            "consistent",
+            "regular",
+            "intense",
+            "hobbyist",
+            "opensource",
+            "irregular",
+        ]
         for behavior in behaviors:
             args = parser.parse_args(["--behavior", behavior])
             assert args.behavior == behavior
-            
+
         # Test short form
         args = parser.parse_args(["-b", "regular"])
         assert args.behavior == "regular"
-        
+
         # Test default
         args = parser.parse_args([])
         assert args.behavior == "consistent"
-        
+
         # Test with other arguments
-        args = parser.parse_args([
-            "-b", "intense",
-            "--max-commits", "30",
-            "--repo-dir", "~/startup"
-        ])
+        args = parser.parse_args(
+            ["-b", "intense", "--max-commits", "30", "--repo-dir", "~/startup"]
+        )
         assert args.behavior == "intense"
         assert args.max_commits == 30
         assert args.repo_dir == "~/startup"

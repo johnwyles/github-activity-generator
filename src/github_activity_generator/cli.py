@@ -108,7 +108,14 @@ Examples:
         "-b",
         "--behavior",
         type=str,
-        choices=["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"],
+        choices=[
+            "consistent",
+            "regular",
+            "intense",
+            "hobbyist",
+            "opensource",
+            "irregular",
+        ],
         default="consistent",
         help="Commit behavior pattern (default: consistent)",
     )
@@ -290,7 +297,9 @@ def show_usage_and_exit() -> None:  # noqa: PLR0915
     print(f"{Colors.BOLD}MORE EXAMPLES:{Colors.RESET}")
     print()
     print("# Use behavior patterns for realistic activity:")
-    print("generate.py --behavior regular --start-date 2024-01-01 --end-date 2024-12-31")
+    print(
+        "generate.py --behavior regular --start-date 2024-01-01 --end-date 2024-12-31"
+    )
     print("generate.py --behavior intense --repo-dir ~/startup-project")
     print("generate.py --behavior hobbyist --start-date 90_days_ago")
     print()

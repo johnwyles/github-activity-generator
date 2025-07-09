@@ -50,12 +50,12 @@ class ActivityGenerator:
         self.progress = ProgressTracker(
             show_progress=config.output.show_progress, verbose=config.output.verbose
         )
-        
+
         # Initialize behavior pattern
         self.behavior = get_behavior(
             config.commit_behavior.behavior,
             config.commit_behavior.max_commits_per_day,
-            config.commit_behavior.frequency_percentage
+            config.commit_behavior.frequency_percentage,
         )
 
         # Get holiday calendar if needed
@@ -172,12 +172,14 @@ class ActivityGenerator:
         # Use specified repo_dir if provided
         if self.config.git_settings.repo_dir:
             repo_dir = Path(self.config.git_settings.repo_dir).expanduser().resolve()
-            
+
             if repo_dir.exists():
                 # Check if it's a git repository
                 if not (repo_dir / ".git").exists():
                     if self.config.output.dry_run:
-                        logger.info(f"[DRY RUN] Would initialize git repository in existing directory: {repo_dir}")
+                        logger.info(
+                            f"[DRY RUN] Would initialize git repository in existing directory: {repo_dir}"
+                        )
                     elif self._confirm_action(
                         f"Directory '{repo_dir}' exists but is not a git repository. "
                         "Initialize it as a git repository?"
@@ -189,20 +191,21 @@ class ActivityGenerator:
                         sys.exit(1)
                 else:
                     logger.info(f"Using existing git repository: {repo_dir}")
+            # Directory doesn't exist
+            elif self.config.output.dry_run:
+                logger.info(
+                    f"[DRY RUN] Would create directory and initialize git repository: {repo_dir}"
+                )
+            elif self._confirm_action(
+                f"Directory '{repo_dir}' does not exist. Create it?"
+            ):
+                create_directory(repo_dir)
+                logger.info(f"Created repository directory: {repo_dir}")
+                self.git_ops.init_repository(repo_dir)
+                logger.info(f"Initialized git repository in: {repo_dir}")
             else:
-                # Directory doesn't exist
-                if self.config.output.dry_run:
-                    logger.info(f"[DRY RUN] Would create directory and initialize git repository: {repo_dir}")
-                elif self._confirm_action(
-                    f"Directory '{repo_dir}' does not exist. Create it?"
-                ):
-                    create_directory(repo_dir)
-                    logger.info(f"Created repository directory: {repo_dir}")
-                    self.git_ops.init_repository(repo_dir)
-                    logger.info(f"Initialized git repository in: {repo_dir}")
-                else:
-                    logger.error("Cannot proceed without repository directory")
-                    sys.exit(1)
+                logger.error("Cannot proceed without repository directory")
+                sys.exit(1)
         else:
             # Generate a new directory name
             if self.config.git_settings.repository_url:
@@ -256,27 +259,34 @@ class ActivityGenerator:
 
         # Create context for behavior
         context = {
-            'start_date': start_date,
-            'end_date': end_date,
+            "start_date": start_date,
+            "end_date": end_date,
         }
 
         with self.progress.track_date_range(start_date, end_date):
             while current_date <= end_date:
                 # For non-consistent behaviors, let behavior decide
-                if self.config.commit_behavior.behavior != 'consistent':
+                if self.config.commit_behavior.behavior != "consistent":
                     # Get commits from behavior pattern
-                    num_commits = self.behavior.get_commits_for_day(current_date, context)
-                    
+                    num_commits = self.behavior.get_commits_for_day(
+                        current_date, context
+                    )
+
                     # Check additional restrictions (holidays)
                     if num_commits > 0 and self.config.commit_behavior.skip_holidays:
                         if self.holidays and current_date.date() in self.holidays:
-                            self.progress.log_skip(current_date, f"holiday ({self.holidays.get(current_date.date())})")
+                            self.progress.log_skip(
+                                current_date,
+                                f"holiday ({self.holidays.get(current_date.date())})",
+                            )
                             self.progress.update_date(current_date, 0)
                             current_date += delta
                             continue
                 else:
                     # Original behavior for consistent pattern
-                    should_commit, skip_reason = self._should_commit_on_date(current_date)
+                    should_commit, skip_reason = self._should_commit_on_date(
+                        current_date
+                    )
                     if should_commit:
                         num_commits = self._get_commits_for_day()
                     else:
