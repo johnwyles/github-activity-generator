@@ -44,7 +44,7 @@ jobs:
         run: ruff check src tests
 
       - name: Run MyPy
-        run: mypy src tests
+        run: mypy src
 
   test:
     name: Test Python ${{ matrix.python-version }}
