@@ -50,8 +50,6 @@ class ConsistentBehavior(CommitBehavior):
 
     def get_commits_for_day(self, date: datetime, context: Dict) -> int:
         """Standard random commits based on frequency."""
-        # date and context are required by base class but not used here
-        _ = (date, context)
         if self._should_skip_by_frequency():
             return 0
         return random.randint(1, self.max_commits)
@@ -202,14 +200,10 @@ class OpenSourceBehavior(CommitBehavior):
     def get_commits_for_day(self, date: datetime, context: Dict) -> int:
         """Get commits for open source contributor."""
         # Check for Hacktoberfest (October)
-        if date.month == 10:
-            # Much more active
-            if random.random() < 0.8:
-                min_val = min(3, self.max_commits)
-                max_val = min(15, self.max_commits)
-                return (
-                    random.randint(min_val, max_val) if min_val < max_val else min_val
-                )
+        if date.month == 10 and random.random() < 0.8:
+            min_val = min(3, self.max_commits)
+            max_val = min(15, self.max_commits)
+            return random.randint(min_val, max_val) if min_val < max_val else min_val
 
         # Conference/hackathon simulation (5% chance of burst)
         if random.random() < 0.05:
@@ -255,7 +249,6 @@ class IrregularBehavior(CommitBehavior):
     def _generate_project_periods(self, start_date: datetime, end_date: datetime):
         """Generate project periods."""
         current = start_date
-        total_days = (end_date - start_date).days
 
         while current < end_date:
             # Gap between projects (1-3 weeks)

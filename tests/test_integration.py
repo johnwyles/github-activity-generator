@@ -107,9 +107,7 @@ class TestIntegration:
         assert start < end
         assert (end - start).days == DAYS_IN_WEEK
 
-    def test_no_arguments_shows_help(
-        self, capsys, monkeypatch, temp_dir  # noqa: ARG002
-    ):
+    def test_no_arguments_shows_help(self, capsys, monkeypatch, temp_dir):
         """Test that running without arguments shows help."""
         # Mock sys.argv to simulate no arguments
         monkeypatch.setattr(sys, "argv", ["generate.py"])

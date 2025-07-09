@@ -273,15 +273,19 @@ class ActivityGenerator:
                     )
 
                     # Check additional restrictions (holidays)
-                    if num_commits > 0 and self.config.commit_behavior.skip_holidays:
-                        if self.holidays and current_date.date() in self.holidays:
-                            self.progress.log_skip(
-                                current_date,
-                                f"holiday ({self.holidays.get(current_date.date())})",
-                            )
-                            self.progress.update_date(current_date, 0)
-                            current_date += delta
-                            continue
+                    if (
+                        num_commits > 0
+                        and self.config.commit_behavior.skip_holidays
+                        and self.holidays
+                        and current_date.date() in self.holidays
+                    ):
+                        self.progress.log_skip(
+                            current_date,
+                            f"holiday ({self.holidays.get(current_date.date())})",
+                        )
+                        self.progress.update_date(current_date, 0)
+                        current_date += delta
+                        continue
                 else:
                     # Original behavior for consistent pattern
                     should_commit, skip_reason = self._should_commit_on_date(
@@ -339,10 +343,7 @@ class ActivityGenerator:
             return False, f"holiday ({self.holidays.get(date.date())})"
 
         # Check frequency
-        if (
-            random.randint(1, 100)  # noqa: S311
-            > self.config.commit_behavior.frequency_percentage
-        ):
+        if random.randint(1, 100) > self.config.commit_behavior.frequency_percentage:
             return False, "frequency"
 
         return True, ""
@@ -354,7 +355,7 @@ class ActivityGenerator:
             Number of commits to make
         """
         max_commits = self.config.commit_behavior.max_commits_per_day
-        return random.randint(1, max_commits)  # noqa: S311
+        return random.randint(1, max_commits)
 
     def _generate_commit_message(self, date: datetime) -> str:
         """Generate commit message for a given date.
