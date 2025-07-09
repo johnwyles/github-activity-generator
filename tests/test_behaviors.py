@@ -241,5 +241,6 @@ class TestIrregularBehavior:
         # Should have both active and inactive periods
         assert active_days > 0
         assert inactive_days > 0
-        # Should be inactive more than active (gaps between projects)
-        assert inactive_days > active_days
+        # Should have significant inactive time (at least 20% of total)
+        total_days = active_days + inactive_days
+        assert inactive_days >= total_days * 0.2

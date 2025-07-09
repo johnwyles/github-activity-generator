@@ -2,7 +2,7 @@
 
 import re
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import holidays
 
@@ -60,7 +60,7 @@ def validate_date_string(date_str: str) -> str:
         raise ValidationError(error_msg) from err
 
 
-def validate_date_range(start_date: str, end_date: str) -> tuple[str, str]:
+def validate_date_range(start_date: str, end_date: str) -> Tuple[str, str]:
     """Validate date range.
 
     Args:

@@ -150,7 +150,7 @@ class Config:
             output=OutputConfig(**data.get("output", {})),
         )
 
-    def merge_with_args(self, args: Any) -> None:  # noqa: C901, PLR0912
+    def merge_with_args(self, args: Any) -> None:
         """Merge command-line arguments into configuration."""
         # Date range
         if hasattr(args, "start_date") and args.start_date:

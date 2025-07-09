@@ -96,6 +96,9 @@ ignore = [
     "S311",   # Standard pseudo-random generators (not crypto use)
     "PLR2004", # Magic values (intentional for behavior patterns)
     "ARG002", # Unused method arguments (required by base class)
+    "E501",   # Line too long (handled by Black)
+    "C901",   # Function complexity
+    "PLR0912", # Too many branches
 ]
 
 [tool.ruff.lint.per-file-ignores]
