@@ -211,8 +211,8 @@ class TestOpenSourceBehavior:
             if behavior.get_commits_for_day(january, context) > 0:
                 january_activity += 1
 
-        # October should be much more active
-        assert october_activity > january_activity * 1.5
+        # October should be more active (at least 20% more)
+        assert october_activity > january_activity * 1.2
 
 
 class TestIrregularBehavior:

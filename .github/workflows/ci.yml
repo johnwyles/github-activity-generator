@@ -109,7 +109,7 @@ jobs:
           pip install bandit[toml] safety
 
       - name: Run Bandit security scan
-        run: bandit -r src -f json -o bandit-report.json
+        run: bandit -r src -f json -o bandit-report.json --configfile .bandit
 
       - name: Check for known vulnerabilities
         run: safety check --json

@@ -1,6 +1,7 @@
 """Integration tests for the GitHub Activity Generator."""
 
 import os
+import platform
 import shutil
 import sys
 import tempfile
@@ -28,7 +29,17 @@ class TestIntegration:
         os.chdir(temp_dir)
         yield temp_dir
         os.chdir(original_dir)
-        shutil.rmtree(temp_dir)
+        
+        # Windows-specific handling for .git directories
+        if platform.system() == "Windows":
+            import subprocess
+            try:
+                # Use Windows rmdir to force remove
+                subprocess.run(["rmdir", "/s", "/q", temp_dir], shell=True, check=False)
+            except Exception:
+                pass  # Ignore cleanup errors on Windows
+        else:
+            shutil.rmtree(temp_dir)
 
     def test_dry_run_execution(self, temp_dir):
         """Test dry run execution."""

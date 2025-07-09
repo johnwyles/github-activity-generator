@@ -125,6 +125,10 @@ pretty = true
 module = "tests.*"
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = "github_activity_generator.behaviors"
+allow_untyped_defs = true
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [

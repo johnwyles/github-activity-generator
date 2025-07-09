@@ -2,8 +2,8 @@
 
 import random
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Dict
+from datetime import date, datetime, timedelta
+from typing import Dict, List, Set, Tuple
 
 from .constants import MIN_CONTRIBUTION_DAYS
 
@@ -20,8 +20,8 @@ class CommitBehavior(ABC):
         """
         self.max_commits = max_commits
         self.frequency = frequency
-        self._vacation_days = set()
-        self._sick_days = set()
+        self._vacation_days: Set[date] = set()
+        self._sick_days: Set[date] = set()
 
     @abstractmethod
     def get_commits_for_day(self, date: datetime, context: Dict) -> int:
@@ -62,7 +62,7 @@ class RegularBehavior(CommitBehavior):
         super().__init__(max_commits, frequency)
         self._setup_time_off()
 
-    def _setup_time_off(self):
+    def _setup_time_off(self) -> None:
         """Setup vacation and sick days for the year."""
         # This will be populated when we have the date range
         pass
@@ -92,7 +92,7 @@ class RegularBehavior(CommitBehavior):
         max_commits = min(12, self.max_commits)
         return random.randint(min_commits, max_commits)
 
-    def _generate_time_off(self, start_date: datetime, end_date: datetime):
+    def _generate_time_off(self, start_date: datetime, end_date: datetime) -> None:
         """Generate vacation and sick days for the period."""
         total_days = (end_date - start_date).days
         year_fraction = min(total_days / 365, 1.0)
@@ -225,7 +225,7 @@ class IrregularBehavior(CommitBehavior):
 
     def __init__(self, max_commits: int = 10, frequency: int = 80):
         super().__init__(max_commits, frequency)
-        self._project_periods = []
+        self._project_periods: List[Tuple[date, date]] = []
 
     def get_commits_for_day(self, date: datetime, context: Dict) -> int:
         """Get commits for irregular pattern."""
@@ -246,7 +246,7 @@ class IrregularBehavior(CommitBehavior):
         # Between projects
         return 0
 
-    def _generate_project_periods(self, start_date: datetime, end_date: datetime):
+    def _generate_project_periods(self, start_date: datetime, end_date: datetime) -> None:
         """Generate project periods."""
         current = start_date
 
