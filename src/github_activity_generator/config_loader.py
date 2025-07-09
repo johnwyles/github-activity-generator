@@ -85,6 +85,7 @@ class CommitBehaviorConfig:
     skip_weekends: bool = False
     skip_holidays: bool = False
     holiday_country: str = "US"
+    behavior: str = "consistent"
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -92,6 +93,11 @@ class CommitBehaviorConfig:
         validate_frequency(self.frequency_percentage)
         if self.skip_holidays:
             validate_country_code(self.holiday_country)
+        # Validate behavior choice
+        valid_behaviors = ["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"]
+        if self.behavior not in valid_behaviors:
+            error_msg = f"Invalid behavior: {self.behavior}. Must be one of: {', '.join(valid_behaviors)}"
+            raise ConfigurationError(error_msg)
 
 
 @dataclass
@@ -101,6 +107,7 @@ class GitSettingsConfig:
     user_name: Optional[str] = None
     user_email: Optional[str] = None
     repository_url: Optional[str] = None
+    repo_dir: Optional[str] = None
 
     def __post_init__(self):
         """Validate configuration after initialization."""
@@ -145,6 +152,8 @@ class Config:
             self.date_range.end_date = args.end_date
 
         # Commit behavior
+        if hasattr(args, "behavior") and args.behavior:
+            self.commit_behavior.behavior = args.behavior
         if hasattr(args, "max_commits") and args.max_commits is not None:
             self.commit_behavior.max_commits_per_day = args.max_commits
         if hasattr(args, "frequency") and args.frequency is not None:
@@ -163,6 +172,8 @@ class Config:
             self.git_settings.user_email = args.user_email
         if hasattr(args, "repository") and args.repository:
             self.git_settings.repository_url = args.repository
+        if hasattr(args, "repo_dir") and args.repo_dir:
+            self.git_settings.repo_dir = args.repo_dir
 
         # Output
         if hasattr(args, "no_progress"):

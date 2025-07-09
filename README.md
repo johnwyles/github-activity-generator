@@ -75,6 +75,13 @@ Date Control:
   --end-date DATE        End date (default: today)
 
 Activity Patterns:
+  --behavior TYPE        Commit behavior pattern:
+                         consistent: Regular random pattern (default)
+                         regular: 9-to-5 developer with vacations
+                         intense: Burst mode with recovery periods
+                         hobbyist: Evenings/weekends, sporadic
+                         opensource: Moderate steady contributor
+                         irregular: Project-based with gaps
   --max-commits N        Max commits per day (1-20, default: 10)
   --frequency N          Percentage of days with commits (0-100, default: 80)
   --no-weekends          Skip Saturdays and Sundays
@@ -83,6 +90,7 @@ Activity Patterns:
 
 Git Configuration:
   --repository URL       Remote repository URL to push to
+  --repo-dir PATH        Use existing directory (accumulates commits)
   --user-name NAME       Override Git user name
   --user-email EMAIL     Override Git user email
 
@@ -95,29 +103,64 @@ Output Options:
 
 ### 🎨 Example Patterns
 
-#### The Consistent Contributor
+#### Behavior Patterns Comparison
+
+| Behavior   | Weekends  | Vacation         | Sick Days | Daily Range | Activity % |
+|------------|-----------|------------------|-----------|-------------|------------|
+| consistent | Yes       | No               | No        | 1-max       | frequency% |
+| regular    | Rare      | 2-3 weeks        | 8-10 days | 3-12        | 75-80%     |
+| intense    | Yes       | 1-2 weeks        | Few       | 0-40        | 85-90%     |
+| hobbyist   | Preferred | Sporadic         | N/A       | 0-15        | 30-40%     |
+| opensource | Yes       | Random           | N/A       | 0-20        | 40-60%     |
+| irregular  | Yes       | Between projects | N/A       | 0-25        | 30-40%     |
+
+#### Using Behavior Patterns (Recommended)
 
 ```bash
+# Professional developer - weekdays only with vacation periods
+generate.py --behavior regular --start-date 2024-01-01 --end-date 2024-12-31
+
+# Startup mode - intense bursts followed by recovery
+generate.py --behavior intense --repo-dir ~/my-startup --max-commits 40
+
+# Weekend hobbyist - sporadic evening/weekend commits
+generate.py --behavior hobbyist --start-date 180_days_ago
+
+# Open source contributor - steady contributions with Hacktoberfest spike
+generate.py --behavior opensource --repository git@github.com:user/project.git
+
+# Freelancer - project-based with gaps between contracts
+generate.py --behavior irregular --start-date 2024-01-01 --end-date 2024-06-30
+```
+
+#### Manual Patterns
+
+```bash
+# The Consistent Contributor
 generate.py --frequency 100 --max-commits 5
-```
 
-#### The Weekend Warrior
-
-```bash
+# The Weekend Warrior
 generate.py --no-weekdays --max-commits 15
-```
 
-#### The 9-to-5 Developer
-
-```bash
+# The 9-to-5 Developer
 generate.py --no-weekends --no-holidays --country-holidays US \
             --frequency 95 --max-commits 12
+
+# The Burst Contributor
+generate.py --frequency 40 --max-commits 20
 ```
 
-#### The Burst Contributor
+#### Building Activity Over Time
 
 ```bash
-generate.py --frequency 40 --max-commits 20
+# First run - create the repository
+generate.py --repo-dir ~/my-activity --start-date 2024-01-01 --end-date 2024-01-31
+
+# Second run - add more commits to the same repository
+generate.py --repo-dir ~/my-activity --start-date 2024-02-01 --end-date 2024-02-29
+
+# Third run - fill in gaps
+generate.py --repo-dir ~/my-activity --start-date 2024-03-01 --end-date 2024-03-31
 ```
 
 ### 📝 Configuration Files
@@ -131,6 +174,7 @@ date_range:
   end_date: "2024-12-31"
 
 commit_behavior:
+  behavior: "regular"  # or: consistent, intense, hobbyist, opensource, irregular
   max_commits_per_day: 15
   frequency_percentage: 90
   skip_weekends: true

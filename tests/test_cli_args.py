@@ -20,12 +20,14 @@ class TestArgumentParsing:
         parser = create_parser()
         args = parser.parse_args([])
 
+        assert args.behavior == "consistent"  # Default behavior
         assert args.country_holidays is None
         assert args.no_holidays is False
         assert args.no_weekends is False
         assert args.max_commits is None  # Default handled by Config
         assert args.frequency is None  # Default handled by Config
         assert args.repository is None
+        assert args.repo_dir is None
         assert args.user_name is None
         assert args.user_email is None
 
@@ -156,6 +158,8 @@ class TestArgumentParsing:
                 "90",
                 "-r",
                 "git@github.com:test/repo.git",
+                "-rd",
+                "~/test-repo",
                 "-un",
                 "Short User",
                 "-ue",
@@ -173,6 +177,7 @@ class TestArgumentParsing:
         assert args.max_commits == TEST_MAX_COMMITS
         assert args.frequency == TEST_FREQUENCY
         assert args.repository == "git@github.com:test/repo.git"
+        assert args.repo_dir == "~/test-repo"
         assert args.user_name == "Short User"
         assert args.user_email == "short@example.com"
         assert args.start_date == "2024-01-01"
@@ -200,3 +205,53 @@ class TestArgumentParsing:
         assert args.start_date == "2024-01-01"
         assert args.end_date == "2024-01-31"
         assert args.frequency == TEST_FREQ_FIFTY
+
+    def test_repo_dir_argument(self):
+        """Test repository directory argument."""
+        parser = create_parser()
+        
+        # Test long form
+        args = parser.parse_args(["--repo-dir", "/path/to/repo"])
+        assert args.repo_dir == "/path/to/repo"
+        
+        # Test short form
+        args = parser.parse_args(["-rd", "~/my-activity"])
+        assert args.repo_dir == "~/my-activity"
+        
+        # Test with other arguments
+        args = parser.parse_args([
+            "--repo-dir", "/custom/path",
+            "--max-commits", "5",
+            "--frequency", "80"
+        ])
+        assert args.repo_dir == "/custom/path"
+        assert args.max_commits == TEST_MIN_COMMITS
+        assert args.frequency == 80
+
+    def test_behavior_argument(self):
+        """Test behavior argument parsing."""
+        parser = create_parser()
+        
+        # Test long form with each behavior
+        behaviors = ["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"]
+        for behavior in behaviors:
+            args = parser.parse_args(["--behavior", behavior])
+            assert args.behavior == behavior
+            
+        # Test short form
+        args = parser.parse_args(["-b", "regular"])
+        assert args.behavior == "regular"
+        
+        # Test default
+        args = parser.parse_args([])
+        assert args.behavior == "consistent"
+        
+        # Test with other arguments
+        args = parser.parse_args([
+            "-b", "intense",
+            "--max-commits", "30",
+            "--repo-dir", "~/startup"
+        ])
+        assert args.behavior == "intense"
+        assert args.max_commits == 30
+        assert args.repo_dir == "~/startup"

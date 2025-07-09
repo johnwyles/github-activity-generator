@@ -105,6 +105,14 @@ Examples:
     # Commit behavior arguments
     commit_group = parser.add_argument_group("Commit Behavior")
     commit_group.add_argument(
+        "-b",
+        "--behavior",
+        type=str,
+        choices=["consistent", "regular", "intense", "hobbyist", "opensource", "irregular"],
+        default="consistent",
+        help="Commit behavior pattern (default: consistent)",
+    )
+    commit_group.add_argument(
         "-mc",
         "--max-commits",
         type=int,
@@ -154,6 +162,13 @@ Examples:
         type=str,
         metavar="EMAIL",
         help="Git user email (overrides global config)",
+    )
+    git_group.add_argument(
+        "-rd",
+        "--repo-dir",
+        type=str,
+        metavar="PATH",
+        help="Use existing repository directory (accumulates commits)",
     )
 
     # Output options
@@ -244,6 +259,13 @@ def show_usage_and_exit() -> None:  # noqa: PLR0915
     print("                       Examples: 2024-12-31, today, yesterday")
     print()
     print(f"{Colors.CYAN}Commit Patterns:{Colors.RESET}")
+    print("  -b, --behavior TYPE  Commit behavior pattern:")
+    print("                       consistent: Regular random pattern (default)")
+    print("                       regular: 9-to-5 developer with vacations")
+    print("                       intense: Burst mode with recovery periods")
+    print("                       hobbyist: Evenings/weekends, sporadic")
+    print("                       opensource: Moderate steady contributor")
+    print("                       irregular: Project-based with gaps")
     print("  --max-commits N      Max commits per day, 1-20 (default: 10)")
     print("  --frequency N        Percentage of days with commits,")
     print("                       0-100 (default: 80)")
@@ -252,10 +274,12 @@ def show_usage_and_exit() -> None:  # noqa: PLR0915
     print("  --country-holidays   Country code for holidays (US, UK, CA, etc.)")
     print()
     print(f"{Colors.CYAN}Git Configuration:{Colors.RESET}")
-    print("  --repository URL     Remote repository URL to push to")
+    print("  -r, --repository URL Remote repository URL to push to")
     print("                       Example: git@github.com:username/repo.git")
-    print("  --user-name NAME     Override Git user name")
-    print("  --user-email EMAIL   Override Git user email")
+    print("  -rd, --repo-dir PATH Use existing directory (accumulates commits)")
+    print("                       Example: ~/my-activity-repo")
+    print("  -un, --user-name     Override Git user name")
+    print("  -ue, --user-email    Override Git user email")
     print()
     print(f"{Colors.CYAN}Output Control:{Colors.RESET}")
     print("  --dry-run           Preview what would be generated")
@@ -265,13 +289,18 @@ def show_usage_and_exit() -> None:  # noqa: PLR0915
     print()
     print(f"{Colors.BOLD}MORE EXAMPLES:{Colors.RESET}")
     print()
+    print("# Use behavior patterns for realistic activity:")
+    print("generate.py --behavior regular --start-date 2024-01-01 --end-date 2024-12-31")
+    print("generate.py --behavior intense --repo-dir ~/startup-project")
+    print("generate.py --behavior hobbyist --start-date 90_days_ago")
+    print()
     print("# Generate a realistic work pattern (weekdays only, with holidays):")
     print("generate.py --no-weekends --no-holidays --country-holidays US \\")
     print("            --start-date 2024-01-01 --end-date 2024-12-31 \\")
     print("            --frequency 85 --max-commits 12")
     print()
-    print("# Simulate an open source contributor (evenings and weekends):")
-    print("generate.py --start-date 90_days_ago --max-commits 8 \\")
+    print("# Simulate an open source contributor:")
+    print("generate.py --behavior opensource --start-date 90_days_ago \\")
     print('            --user-name "Jane Developer" \\')
     print('            --user-email "jane@example.com"')
     print()
