@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import yaml
 
@@ -25,7 +25,7 @@ class DateRangeConfig:
     start_date: str = field(default_factory=lambda: "365_days_ago")
     end_date: str = field(default_factory=lambda: "today")
 
-    def resolve_dates(self) -> tuple[datetime, datetime]:
+    def resolve_dates(self) -> Tuple[datetime, datetime]:
         """Resolve date strings to datetime objects."""
         start = self._resolve_date(self.start_date)
         end = self._resolve_date(self.end_date)

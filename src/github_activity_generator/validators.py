@@ -221,7 +221,7 @@ def validate_repository_url(url: str) -> str:
 
 def validate_git_user_config(
     name: Optional[str], email: Optional[str]
-) -> tuple[Optional[str], Optional[str]]:
+) -> Tuple[Optional[str], Optional[str]]:
     """Validate git user configuration.
 
     Args:

@@ -3,6 +3,7 @@
 import os
 import platform
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -32,12 +33,14 @@ class TestIntegration:
 
         # Windows-specific handling for .git directories
         if platform.system() == "Windows":
-            import subprocess
-
+            # Try Windows rmdir to force remove git directories
+            # S602, S607: Using shell=True is needed for Windows rmdir command
+            # S110: Ignoring errors is intentional for test cleanup
             try:
-                # Use Windows rmdir to force remove
-                subprocess.run(["rmdir", "/s", "/q", temp_dir], shell=True, check=False)
-            except Exception:
+                subprocess.run(
+                    ["rmdir", "/s", "/q", temp_dir], shell=True, check=False  # noqa: S602, S607
+                )
+            except Exception:  # noqa: S110
                 pass  # Ignore cleanup errors on Windows
         else:
             shutil.rmtree(temp_dir)

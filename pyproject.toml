@@ -1,21 +1,24 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_backend"
 
 [project]
 name = "github-activity-generator"
 version = "2.0.0"
-description = "Generate GitHub activity graphs by creating backdated commits"
+description = "Generate realistic GitHub activity"
 readme = "README.md"
+requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "John Wyles", email = "john@johnwyles.com"}
+    {name = "John Wyles", email = "john@johnwyles.com"},
 ]
-keywords = ["github", "activity", "generator", "commits", "contributions"]
+keywords = ["github", "activity", "generator", "contributions", "git"]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -24,47 +27,54 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Version Control :: Git",
 ]
-requires-python = ">=3.8"
 dependencies = [
-    "holidays>=0.30",
-    "pyyaml>=6.0",
-    "tqdm>=4.65.0",
-    "click>=8.0.0",
-    "rich>=13.0.0",
+    "rich>=13.0",
+    "PyYAML>=6.0",
+    "holidays>=0.31",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.11.0",
-    "black>=23.0.0",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "black>=23.0",
     "ruff>=0.1.0",
-    "mypy>=1.5.0",
-    "pre-commit>=3.3.0",
-    "tox>=4.0.0",
-    "types-PyYAML>=6.0.0",
-    "hypothesis>=6.0.0",
+    "mypy>=1.0",
+    "types-PyYAML",
+    "hypothesis>=6.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/johnwyles/github-activity-generator"
+Repository = "https://github.com/johnwyles/github-activity-generator.git"
+Issues = "https://github.com/johnwyles/github-activity-generator/issues"
 
 [project.scripts]
 github-activity-generator = "github_activity_generator.cli:main"
 
-[project.urls]
-"Homepage" = "https://github.com/johnwyles/github-activity-generator"
-"Bug Reports" = "https://github.com/johnwyles/github-activity-generator/issues"
-"Source" = "https://github.com/johnwyles/github-activity-generator"
-
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-data]
-github_activity_generator = ["py.typed"]
 
 [tool.black]
 line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
 include = '\.pyi?$'
+extend-exclude = '''
+^/(
+  (
+    \.eggs
+    | \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | \.ruff_cache
+    | \.venv
+    | __pycache__
+    | build
+    | dist
+  )/
+)
+'''
 
 [tool.ruff]
 line-length = 88
@@ -76,16 +86,10 @@ select = [
     "W",      # pycodestyle warnings
     "F",      # pyflakes
     "I",      # isort
-    "C",      # flake8-comprehensions
     "B",      # flake8-bugbear
-    "UP",     # pyupgrade
+    "C4",     # flake8-comprehensions
     "S",      # flake8-bandit
-    "A",      # flake8-builtins
-    "DTZ",    # flake8-datetimez
-    "EM",     # flake8-errmsg
-    "RET",    # flake8-return
     "SIM",    # flake8-simplify
-    "TID",    # flake8-tidy-imports
     "ARG",    # flake8-unused-arguments
     "PL",     # pylint
     "RUF",    # ruff-specific rules
@@ -102,7 +106,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "S105", "S106", "DTZ001", "PLR2004"]
+"tests/*" = ["S101", "S105", "S106", "S110", "S602", "S607", "DTZ001", "PLR2004", "PLC0415", "SIM105"]
 "src/github_activity_generator/behaviors.py" = ["S311", "PLR2004"]
 
 [tool.mypy]
@@ -134,23 +138,42 @@ minversion = "7.0"
 addopts = [
     "-ra",
     "--strict-markers",
-    "--cov=src",
+    "--cov=github_activity_generator",
     "--cov-branch",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
+    "--cov-report=term-missing:skip-covered",
 ]
 testpaths = ["tests"]
-pythonpath = ["src"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv"]
+skips = ["B311", "B404", "B603", "B607"]
 
 [tool.coverage.run]
-source = ["src"]
-omit = ["*/tests/*", "*/test_*"]
+source_pkgs = ["github_activity_generator"]
+branch = true
+parallel = true
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.paths]
+source = [
+    "src/github_activity_generator",
+    "*/site-packages/github_activity_generator",
+]
 
 [tool.coverage.report]
-precision = 2
-show_missing = true
-skip_covered = false
-
-[tool.coverage.html]
-directory = "htmlcov"
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "pass",
+    "except ImportError:",
+]
